@@ -8,7 +8,7 @@
 
 #define MEMORY_CONFIG_BASE "../configs/"
 #define DDR4_CONFIG_FILE "DDR4_4Gb_x8_2666_2.ini"
-#define HBM2_CONFIG_FILE "HBM2_8Gb_x128.ini"
+#define HBM2_CONFIG_FILE "HBM2_4Gb_x128.ini"
 #define DDR4_CONFIG_PATH MEMORY_CONFIG_BASE DDR4_CONFIG_FILE
 #define HBM2_CONFIG_PATH MEMORY_CONFIG_BASE HBM2_CONFIG_FILE
 #define OUTPUT_DIR_PATH "./output"
@@ -172,6 +172,22 @@ int main() {
     SimulateDRAMAccess(hbm2, sequential_transactions);
     SimulateDRAMAccess(hbm2, columnwise_transactions);
     SimulateDRAMAccess(hbm2, cubewise_transactions);
+
+    // for (auto& memory : {std::make_pair(ddr4, "DDR4"), std::make_pair(hbm2, "HBM2")}) {
+    // std::cout << "\n[Performing Stride Tests on " << memory.second << "]" << std::endl;
+
+    //     bool is_write = false;
+    //     for (int k = 0; k <= 28; ++k) {
+    //         size_t stride = static_cast<size_t>(1) << k; // Stride = 2^k
+    //         std::vector<std::tuple<uint64_t, bool>> stride_transactions = 
+    //             GenerateColumnwiseTransactions(start_address, 8, stride, element_size, 64, is_write);
+
+    //         // 결과 출력
+    //         std::cout << "\n-- Testing with Stride = 2^" << k << " (" << stride << ")" << std::endl;
+    //         PrintAddresses(stride_transactions);
+    //         SimulateDRAMAccess(memory.first, stride_transactions);
+    //     }
+    // }
 
     return 0;
 }
