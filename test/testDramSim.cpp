@@ -47,8 +47,7 @@ void PrintAddresses(const std::vector<std::tuple<uint64_t, bool>>& transactions)
 }
 
 // Generate Sequential Transactions (Read/Write)
-std::vector<std::tuple<uint64_t, bool>> GenerateSequentialTransactions(
-    uint64_t start_address, size_t num_elements, size_t element_size, size_t burst_size, bool is_write) {
+std::vector<std::tuple<uint64_t, bool>> GenerateSequentialTransactions(uint64_t start_address, size_t num_elements, size_t element_size, size_t burst_size, bool is_write) {
     std::vector<std::tuple<uint64_t, bool>> transactions;
     size_t data_size = element_size * num_elements;
     size_t total_requests = data_size / burst_size;
@@ -60,8 +59,7 @@ std::vector<std::tuple<uint64_t, bool>> GenerateSequentialTransactions(
 }
 
 // Generate Column-wise Transactions (Read/Write)
-std::vector<std::tuple<uint64_t, bool>> GenerateColumnwiseTransactions(
-    uint64_t start_address, size_t num_elements, size_t stride, size_t element_size, size_t burst_size, bool is_write) {
+std::vector<std::tuple<uint64_t, bool>> GenerateColumnwiseTransactions(uint64_t start_address, size_t num_elements, size_t stride, size_t element_size, size_t burst_size, bool is_write) {
     std::vector<std::tuple<uint64_t, bool>> transactions;
 
     size_t elements_in_burst = (burst_size / (element_size * stride)) + (burst_size % (element_size * stride) ? 1 : 0);
@@ -87,19 +85,11 @@ void RegisterCallbacks(
 
     // Read Callback
     auto read_callback = [&completion_times, &current_clock](uint64_t addr) {
-    #ifdef DEBUG
-        std::cout << "- Read callback at address: 0x" << std::hex << addr << std::dec
-                  << " at clock: " << current_clock << std::endl;
-    #endif
         completion_times.emplace_back(addr, false, current_clock); // false = Read
     };
 
     // Write Callback
     auto write_callback = [&completion_times, &current_clock](uint64_t addr) {
-    #ifdef DEBUG
-        std::cout << "- Write callback at address: 0x" << std::hex << addr << std::dec
-                  << " at clock: " << current_clock << std::endl;
-    #endif
         completion_times.emplace_back(addr, true, current_clock); // true = Write
     };
 
