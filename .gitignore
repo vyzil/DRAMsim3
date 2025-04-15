@@ -45,6 +45,8 @@ release
 *.exe
 *.out
 *.app
+generate
+test
 
 # IDEs / Editors
 .vscode/
