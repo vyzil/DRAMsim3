@@ -7,6 +7,14 @@
 
 namespace dramsim3 {
 
+
+// ******* MODIFIED *******
+extern bool g_print_cycle;
+extern bool g_print_issue;
+extern bool g_print_return;
+// ************************
+
+
 struct Address {
     Address()
         : channel(-1), rank(-1), bankgroup(-1), bank(-1), row(-1), column(-1) {}

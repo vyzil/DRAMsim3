@@ -1,43 +1,62 @@
-# ONLY use this makefile if you do NOT have a cmake 3.0+ version
+# Makefile
 
 CC=gcc
 CXX=g++
 
+# Include directories
 FMT_LIB_DIR=ext/fmt/include
 INI_LIB_DIR=ext/headers
 JSON_LIB_DIR=ext/headers
 ARGS_LIB_DIR=ext/headers
 
 INC=-Isrc/ -I$(FMT_LIB_DIR) -I$(INI_LIB_DIR) -I$(ARGS_LIB_DIR) -I$(JSON_LIB_DIR)
-CXXFLAGS=-Wall -O3 -fPIC -std=c++11 $(INC) -DFMT_HEADER_ONLY=1
+CXXFLAGS=-Wall -O3 -fPIC -std=c++17 $(INC) -DFMT_HEADER_ONLY=1
+CXXFLAGS += -DPRINT_ISSUE_LOG 
+CXXFLAGS += -DPRINT_RETURN_LOG
 
-LIB_NAME=libdramsim3.so
-EXE_NAME=dramsim3main.out
+# Directories
+BUILD_DIR := build
+TRACE_DIR := traces
 
+# Output binaries (now in top-level)
+TEST_EXE := test
+GEN_EXE := generate
+
+# Source files
 SRCS = src/bankstate.cc src/channel_state.cc src/command_queue.cc src/common.cc \
-		src/configuration.cc src/controller.cc src/dram_system.cc src/hmc.cc \
-		src/memory_system.cc src/refresh.cc src/simple_stats.cc src/timing.cc
+       src/configuration.cc src/controller.cc src/dram_system.cc src/hmc.cc \
+       src/memory_system.cc src/refresh.cc src/simple_stats.cc src/timing.cc \
+       src/logger.cc
 
-EXE_SRCS = src/cpu.cc src/main.cc
+TEST_SRC = src/main.cc
+GEN_SRC = src/generator.cc
 
-OBJECTS = $(addsuffix .o, $(basename $(SRCS)))
-EXE_OBJS = $(addsuffix .o, $(basename $(EXE_SRCS)))
-EXE_OBJS := $(EXE_OBJS) $(OBJECTS)
+# Object files
+OBJS = $(patsubst src/%.cc, $(BUILD_DIR)/%.o, $(SRCS))
+TEST_OBJ = $(patsubst src/%.cc, $(BUILD_DIR)/%.o, $(TEST_SRC))
+GEN_OBJ = $(patsubst src/%.cpp, $(BUILD_DIR)/%.o, $(GEN_SRC))
 
+.PHONY: all clean
 
-all: $(LIB_NAME) $(EXE_NAME)
+all: $(BUILD_DIR) $(TEST_EXE) $(GEN_EXE)
 
-$(EXE_NAME): $(EXE_OBJS)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Target: test
+$(TEST_EXE): $(TEST_OBJ) $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-$(LIB_NAME): $(OBJECTS)
-	$(CXX) -g -shared -Wl,-soname,$@ -o $@ $^
+# Target: generate
+$(GEN_EXE): $(GEN_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-%.o : %.cc
-	$(CXX)  $(CXXFLAGS) -o $@ -c $<
+# Compile source files
+$(BUILD_DIR)/%.o: src/%.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-%.o : %.c
-	$(CC) -fPIC -O2 -o $@ -c $<
+$(BUILD_DIR)/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	-rm -f $(EXE_OBJS) $(LIB_NAME) $(EXE_NAME)
+	rm -rf $(BUILD_DIR) test generate

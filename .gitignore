@@ -1,4 +1,5 @@
 # project files
+output/*
 build/
 debug_build/
 data/

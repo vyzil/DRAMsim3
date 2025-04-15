@@ -6,6 +6,13 @@
 
 namespace dramsim3 {
 
+// ******* MODIFIED *******
+bool g_print_cycle = false;
+bool g_print_issue = false;
+bool g_print_return = false;
+// ************************
+
+
 std::ostream& operator<<(std::ostream& os, const Command& cmd) {
     std::vector<std::string> command_string = {
         "read",

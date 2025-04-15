@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include "logger.h"
 
 namespace dramsim3 {
 
@@ -46,6 +47,19 @@ std::pair<uint64_t, int> Controller::ReturnDoneTrans(uint64_t clk) {
     auto it = return_queue_.begin();
     while (it != return_queue_.end()) {
         if (clk >= it->complete_cycle) {
+            // ******* MODIFIED *******
+            // if(g_print_return){
+            //     std::cout << "\t\t\033[34m[=] (Return)\033[0m "
+            //             << "Type: " << std::left << std::setw(15) << std::setfill(' ') << (it->is_write ? "WRITE" : "READ")
+            //             << " | Addr: 0x" << std::hex << std::setw(8) << std::setfill('0') << it->addr << std::dec
+            //             << " -> Added: " << it->added_cycle
+            //             << ", Done: " << it->complete_cycle
+            //             << ", Latency: " << (clk - it->added_cycle)
+            //             << std::endl;
+            // }
+            Logger::PrintReturn(clk, *it);
+            // ************************
+
             if (it->is_write) {
                 simple_stats_.Increment("num_writes_done");
             } else {
@@ -195,12 +209,22 @@ bool Controller::AddTransaction(Transaction trans) {
 }
 
 void Controller::ScheduleTransaction() {
+
     // determine whether to schedule read or write
     if (write_draining_ == 0 && !is_unified_queue_) {
         // we basically have a upper and lower threshold for write buffer
         if ((write_buffer_.size() >= write_buffer_.capacity()) ||
             (write_buffer_.size() > 8 && cmd_queue_.QueueEmpty())) {
             write_draining_ = write_buffer_.size();
+
+            // ******* MODIFIED *******
+            // if(g_print_issue || g_print_return){
+            //     std::cout << "[-] (WRITE_DRAINING) triggered! (" << clk_ << ") "
+            //             << "write_buffer size = " << write_buffer_.size()
+            //             << " / " << write_buffer_.capacity() << std::endl;
+            // }
+            // ************************
+
         }
     }
 
@@ -227,6 +251,39 @@ void Controller::ScheduleTransaction() {
 }
 
 void Controller::IssueCommand(const Command &cmd) {
+
+// ******* MODIFIED *******
+
+    // if(g_print_issue){
+    //     std::string cmd_type_str;
+
+    //     switch (cmd.cmd_type) {
+    //         case CommandType::READ: cmd_type_str = "READ"; break;
+    //         case CommandType::READ_PRECHARGE: cmd_type_str = "READ_PRECHARGE"; break;
+    //         case CommandType::WRITE: cmd_type_str = "WRITE"; break;
+    //         case CommandType::WRITE_PRECHARGE: cmd_type_str = "WRITE_PRECHARGE"; break;
+    //         case CommandType::ACTIVATE: cmd_type_str = "ACTIVATE"; break;
+    //         case CommandType::PRECHARGE: cmd_type_str = "PRECHARGE"; break;
+    //         case CommandType::REFRESH_BANK: cmd_type_str = "REFRESH_BANK"; break;
+    //         case CommandType::REFRESH: cmd_type_str = "REFRESH"; break;
+    //         case CommandType::SREF_ENTER: cmd_type_str = "SREF_ENTER"; break;
+    //         case CommandType::SREF_EXIT: cmd_type_str = "SREF_EXIT"; break;
+    //         case CommandType::SIZE: cmd_type_str = "INVALID"; break;
+    //     }
+        
+    //     std::cout << "\t\t\033[32m[*] (Issue)\033[0m  "
+    //     << "Type: " << std::left << std::setw(15) << std::setfill(' ') << cmd_type_str
+    //     << " | Addr: 0x" << std::hex << std::setw(8) << std::setfill('0') << cmd.hex_addr << std::dec
+    //     << " -> Channel: " << std::right << std::setw(2) << std::setfill(' ') << cmd.addr.channel
+    //     << ", BG: " << std::setw(1) << cmd.addr.bankgroup
+    //     << ", Bank: " << std::setw(1) << cmd.addr.bank
+    //     << ", Row: " << std::setw(5) << cmd.addr.row
+    //     << ", Col: " << std::setw(2) << cmd.addr.column
+    //     << std::endl;
+    // }
+    Logger::PrintIssue(clk_, cmd); 
+// ************************
+
 #ifdef CMD_TRACE
     cmd_trace_ << std::left << std::setw(18) << clk_ << " " << cmd << std::endl;
 #endif  // CMD_TRACE
