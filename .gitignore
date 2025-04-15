@@ -1,6 +1,6 @@
 # project files
-output/
-traces/
+output/*
+traces/*
 build/
 debug_build/
 data/
