@@ -216,15 +216,6 @@ void Controller::ScheduleTransaction() {
         if ((write_buffer_.size() >= write_buffer_.capacity()) ||
             (write_buffer_.size() > 8 && cmd_queue_.QueueEmpty())) {
             write_draining_ = write_buffer_.size();
-
-            // ******* MODIFIED *******
-            // if(g_print_issue || g_print_return){
-            //     std::cout << "[-] (WRITE_DRAINING) triggered! (" << clk_ << ") "
-            //             << "write_buffer size = " << write_buffer_.size()
-            //             << " / " << write_buffer_.capacity() << std::endl;
-            // }
-            // ************************
-
         }
     }
 
@@ -253,34 +244,6 @@ void Controller::ScheduleTransaction() {
 void Controller::IssueCommand(const Command &cmd) {
 
 // ******* MODIFIED *******
-
-    // if(g_print_issue){
-    //     std::string cmd_type_str;
-
-    //     switch (cmd.cmd_type) {
-    //         case CommandType::READ: cmd_type_str = "READ"; break;
-    //         case CommandType::READ_PRECHARGE: cmd_type_str = "READ_PRECHARGE"; break;
-    //         case CommandType::WRITE: cmd_type_str = "WRITE"; break;
-    //         case CommandType::WRITE_PRECHARGE: cmd_type_str = "WRITE_PRECHARGE"; break;
-    //         case CommandType::ACTIVATE: cmd_type_str = "ACTIVATE"; break;
-    //         case CommandType::PRECHARGE: cmd_type_str = "PRECHARGE"; break;
-    //         case CommandType::REFRESH_BANK: cmd_type_str = "REFRESH_BANK"; break;
-    //         case CommandType::REFRESH: cmd_type_str = "REFRESH"; break;
-    //         case CommandType::SREF_ENTER: cmd_type_str = "SREF_ENTER"; break;
-    //         case CommandType::SREF_EXIT: cmd_type_str = "SREF_EXIT"; break;
-    //         case CommandType::SIZE: cmd_type_str = "INVALID"; break;
-    //     }
-        
-    //     std::cout << "\t\t\033[32m[*] (Issue)\033[0m  "
-    //     << "Type: " << std::left << std::setw(15) << std::setfill(' ') << cmd_type_str
-    //     << " | Addr: 0x" << std::hex << std::setw(8) << std::setfill('0') << cmd.hex_addr << std::dec
-    //     << " -> Channel: " << std::right << std::setw(2) << std::setfill(' ') << cmd.addr.channel
-    //     << ", BG: " << std::setw(1) << cmd.addr.bankgroup
-    //     << ", Bank: " << std::setw(1) << cmd.addr.bank
-    //     << ", Row: " << std::setw(5) << cmd.addr.row
-    //     << ", Col: " << std::setw(2) << cmd.addr.column
-    //     << std::endl;
-    // }
     Logger::PrintIssue(clk_, cmd); 
 // ************************
 

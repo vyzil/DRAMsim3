@@ -2,7 +2,7 @@
 
 # 테스트 파라미터
 START_IDX=0
-STRIDE_EXP=16
+STRIDE_EXP=18
 COUNT=512
 IS_WRITE=0
 
@@ -10,4 +10,5 @@ IS_WRITE=0
 ./generate "$START_IDX" "$STRIDE_EXP" "$COUNT" "$IS_WRITE"
 
 # 시뮬레이션 실행
+# ./test -D issue
 ./test

@@ -16,6 +16,9 @@ release
 *.vh
 .vs/
 
+# exception
+!output/analyze_issue.ipynb
+
 # Compiled Object files
 *.slo
 *.lo
