@@ -47,19 +47,7 @@ std::pair<uint64_t, int> Controller::ReturnDoneTrans(uint64_t clk) {
     auto it = return_queue_.begin();
     while (it != return_queue_.end()) {
         if (clk >= it->complete_cycle) {
-            // ******* MODIFIED *******
-            // if(g_print_return){
-            //     std::cout << "\t\t\033[34m[=] (Return)\033[0m "
-            //             << "Type: " << std::left << std::setw(15) << std::setfill(' ') << (it->is_write ? "WRITE" : "READ")
-            //             << " | Addr: 0x" << std::hex << std::setw(8) << std::setfill('0') << it->addr << std::dec
-            //             << " -> Added: " << it->added_cycle
-            //             << ", Done: " << it->complete_cycle
-            //             << ", Latency: " << (clk - it->added_cycle)
-            //             << std::endl;
-            // }
             Logger::PrintReturn(clk, *it);
-            // ************************
-
             if (it->is_write) {
                 simple_stats_.Increment("num_writes_done");
             } else {
@@ -77,6 +65,9 @@ std::pair<uint64_t, int> Controller::ReturnDoneTrans(uint64_t clk) {
 }
 
 void Controller::ClockTick() {
+    // printf("clk=%lu unified_queue=%lu read_queue=%lu write_buffer=%lu pending_rd_q=%lu pending_wr_q=%lu\n",
+    //    clk_, unified_queue_.size(), read_queue_.size(), write_buffer_.size(), pending_rd_q_.size(), pending_wr_q_.size());
+
     // update refresh counter
     refresh_.ClockTick();
 
@@ -186,8 +177,8 @@ bool Controller::AddTransaction(Transaction trans) {
                 write_buffer_.push_back(trans);
             }
         }
-        trans.complete_cycle = clk_ + 1;
-        return_queue_.push_back(trans);
+        // trans.complete_cycle = clk_ + 1;
+        // return_queue_.push_back(trans);
         return true;
     } else {  // read
         // if in write buffer, use the write buffer value
@@ -214,7 +205,7 @@ void Controller::ScheduleTransaction() {
     if (write_draining_ == 0 && !is_unified_queue_) {
         // we basically have a upper and lower threshold for write buffer
         if ((write_buffer_.size() >= write_buffer_.capacity()) ||
-            (write_buffer_.size() > 8 && cmd_queue_.QueueEmpty())) {
+            (write_buffer_.size() >= 8 || cmd_queue_.QueueEmpty())) {
             write_draining_ = write_buffer_.size();
         }
     }
@@ -278,6 +269,9 @@ void Controller::IssueCommand(const Command &cmd) {
         }
         auto wr_lat = clk_ - it->second.added_cycle + config_.write_delay;
         simple_stats_.AddValue("write_latency", wr_lat);
+
+        it->second.complete_cycle = clk_ + config_.write_delay;
+        return_queue_.push_back(it->second);
         pending_wr_q_.erase(it);
     }
     // must update stats before states (for row hits)

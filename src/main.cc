@@ -181,7 +181,6 @@ void RunSimulation(MemorySystem* mem,
                 }
             }
         }
-
         clk++;
     }
 
